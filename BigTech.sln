@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigTech.Api", "BigTech.Api\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigTech.Domain", "BigTech.Domain\BigTech.Domain.csproj", "{1C4DFFC3-4D20-473A-B449-1C39E2CA9B73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigTech.DAL", "BigTech.DAL\BigTech.DAL.csproj", "{F8B45CDE-0734-427B-A593-D9972BA880D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigTech.Application", "BigTech.Application\BigTech.Application.csproj", "{00510346-137B-455C-870C-719E1F7E0C79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{1C4DFFC3-4D20-473A-B449-1C39E2CA9B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C4DFFC3-4D20-473A-B449-1C39E2CA9B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C4DFFC3-4D20-473A-B449-1C39E2CA9B73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8B45CDE-0734-427B-A593-D9972BA880D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8B45CDE-0734-427B-A593-D9972BA880D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8B45CDE-0734-427B-A593-D9972BA880D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8B45CDE-0734-427B-A593-D9972BA880D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00510346-137B-455C-870C-719E1F7E0C79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00510346-137B-455C-870C-719E1F7E0C79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00510346-137B-455C-870C-719E1F7E0C79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00510346-137B-455C-870C-719E1F7E0C79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -34,5 +46,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1A656658-65FA-4744-9B95-8B112FC257B8} = {E639B409-F438-496B-A75A-1EDC4BBC66DE}
 		{1C4DFFC3-4D20-473A-B449-1C39E2CA9B73} = {A44C88DE-1523-4D45-80D1-CD0438106799}
+		{F8B45CDE-0734-427B-A593-D9972BA880D4} = {ABFCE064-5E9F-4084-B858-B4CAE66783F2}
+		{00510346-137B-455C-870C-719E1F7E0C79} = {A44C88DE-1523-4D45-80D1-CD0438106799}
 	EndGlobalSection
 EndGlobal
