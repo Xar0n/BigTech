@@ -12,40 +12,46 @@ internal class BaseRepository<TEntity> :
         _context = context;
     }
 
-    public Task<TEntity> CreateAsync(TEntity entity)
+    public async Task<TEntity> CreateAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException("Entity is null");
 
-        _context.Add(entity);
-        _context.SaveChanges();
+        await _context.AddAsync(entity);
+        await _context.SaveChangesAsync();
 
-        return Task.FromResult(entity);
+        return entity;
     }
+
 
     public IQueryable<TEntity> GetAll()
     {
         return _context.Set<TEntity>();
     }
 
-    public Task<TEntity> RemoveAsync(TEntity entity)
+    public async Task<int> SaveChangesAsync()
+    {
+        return await _context.SaveChangesAsync();
+    }
+
+    public async Task<TEntity> RemoveAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException("Entity is null");
         _context.Remove(entity);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
-        return Task.FromResult(entity);
+        return entity;
     }
 
-    public Task<TEntity> UpdateAsync(TEntity entity)
+    public async Task<TEntity> UpdateAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException("Entity is null");
 
         _context.Update(entity);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
-        return Task.FromResult(entity);
+        return entity;
     }
 }

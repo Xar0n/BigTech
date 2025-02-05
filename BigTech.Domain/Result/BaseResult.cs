@@ -1,7 +1,7 @@
 ﻿namespace BigTech.Domain.Result;
 public class BaseResult
 {
-    public bool IsSucess => ErrorMessage == null;
+    public bool IsSuccess => ErrorMessage == null;
 
     public string ErrorMessage {  get; set; }
 

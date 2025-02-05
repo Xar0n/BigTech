@@ -23,12 +23,13 @@ public class ReportService : IReportService
     public ReportService(IBaseRepository<Report> reportRepository,
         IBaseRepository<User> userRepository,
         IReportValidator reportValidator,
-        IMapper _mapper,
+        IMapper mapper,
         ILogger logger)
     {
         _reportRepository = reportRepository;
         _userRepository = userRepository;
         _reportValidator = reportValidator;
+        _mapper = mapper;
         _logger = logger;
     }
 
@@ -42,7 +43,7 @@ public class ReportService : IReportService
             var report = await _reportRepository.GetAll()
                 .FirstOrDefaultAsync(r => r.Name == dto.Name);
             var result = _reportValidator.CreateValidator(report, user);
-            if (!result.IsSucess)
+            if (!result.IsSuccess)
             {
                 return new BaseResult<ReportDto>()
                 {
@@ -81,7 +82,7 @@ public class ReportService : IReportService
             var report = await _reportRepository.GetAll()
                 .FirstOrDefaultAsync(r => r.Id == id);
             var result = _reportValidator.ValidateOnNull(report);
-            if (!result.IsSucess)
+            if (!result.IsSuccess)
             {
                 return new BaseResult<ReportDto>()
                 {
@@ -193,7 +194,7 @@ public class ReportService : IReportService
                 .FirstOrDefaultAsync(r => r.Id == dto.Id);
 
             var result = _reportValidator.ValidateOnNull(report);
-            if (!result.IsSucess)
+            if (!result.IsSuccess)
             {
                 return new BaseResult<ReportDto>()
                 {

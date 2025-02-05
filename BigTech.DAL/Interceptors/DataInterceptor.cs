@@ -6,12 +6,13 @@ using System.Threading;
 namespace BigTech.DAL.Interceptors;
 public class DataInterceptor : SaveChangesInterceptor
 {
-    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         var dbContext = eventData.Context;
         if (dbContext is null)
         {
-            return base.SavedChanges(eventData, result);
+            return base.SavingChanges(eventData, result);
         }
 
         var entries = dbContext.ChangeTracker.Entries<IAuditable>();
@@ -28,7 +29,7 @@ public class DataInterceptor : SaveChangesInterceptor
             }
         }
 
-        return base.SavedChanges(eventData, result);
+        return base.SavingChanges(eventData, result);
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
