@@ -1,7 +1,6 @@
 ﻿using BigTech.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using System.Threading;
 
 namespace BigTech.DAL.Interceptors;
 public class DataInterceptor : SaveChangesInterceptor

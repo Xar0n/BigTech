@@ -1,12 +1,16 @@
-﻿using BigTech.Domain.Dto.Report;
+﻿using Asp.Versioning;
+using BigTech.Domain.Dto.Report;
 using BigTech.Domain.Interfaces.Services;
 using BigTech.Domain.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BigTech.Api.Controllers;
-//[Authorize]
-[Route("api/v1/[controller]")]
+
+[Authorize]
 [ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class ReportsController : ControllerBase
 {
     private readonly IReportService _reportService;
