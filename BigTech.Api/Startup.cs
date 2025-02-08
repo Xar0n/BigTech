@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace BigTech.Api;
 
@@ -36,7 +37,7 @@ public static class Startup
             {
                 Version = "v2",
                 Title = "BigTech.Api",
-                Description = "It is second version",
+                //Description = "It is second version",
                 Contact = new OpenApiContact()
                 {
                     Email = "toni.neczvetaev.06@bk.ru",
@@ -66,6 +67,9 @@ public static class Startup
                     Array.Empty<string>()
                 }
             });
+
+            var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFileName));
         });
 
         return services;
