@@ -18,17 +18,23 @@ public class AuthService : IAuthService
 {
     private readonly IBaseRepository<User> _userRepository;
     private readonly IBaseRepository<UserToken> _userTokenRepository;
+    private readonly IBaseRepository<Role> _roleRepository;
+    private readonly IBaseRepository<UserRole> _userRoleRepository;
     private readonly ITokenService _tokenService;
     private readonly ILogger _logger;
     private readonly IMapper _mapper;
 
     public AuthService(IBaseRepository<User> userRepository,
         IBaseRepository<UserToken> userTokenRepository,
+        IBaseRepository<Role> roleRepository,
+        IBaseRepository<UserRole> userRoleRepository,
         ITokenService tokenService,
         ILogger logger, IMapper mapper)
     {
         _userRepository = userRepository;
         _userTokenRepository = userTokenRepository;
+        _roleRepository = roleRepository;
+        _userRoleRepository = userRoleRepository;
         _tokenService = tokenService;
         _logger = logger;
         _mapper = mapper;
@@ -38,8 +44,8 @@ public class AuthService : IAuthService
     {
         try
         {
-            var users = await _userRepository.GetAll().ToListAsync();
             var user = await _userRepository.GetAll()
+                .Include(u => u.Roles)
                 .FirstOrDefaultAsync(u => u.Login == dto.Login);
             if (user == null)
             {
@@ -60,11 +66,10 @@ public class AuthService : IAuthService
             var userToken = await _userTokenRepository.GetAll()
                 .FirstOrDefaultAsync(ut => ut.UserId == user.Id);
 
-            var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, user.Login),
-                new Claim(ClaimTypes.Role, "User")
-            };
+
+            var userRoles = user.Roles;
+            var claims = userRoles?.Select(ur => new Claim(ClaimTypes.Role, ur.Name)).ToList();
+            claims.Add(new Claim(ClaimTypes.Name, user.Login));
             var acessToken = _tokenService.GenerateAcessToken(claims);
             var refreshToken = _tokenService.GenerateRefreshToken();
             
@@ -135,6 +140,25 @@ public class AuthService : IAuthService
                 Password = hashUserPassword,
             };
             await _userRepository.CreateAsync(user);
+
+            var role = await _roleRepository.GetAll().FirstOrDefaultAsync(r => r.Name == "User");
+            if (role == null)
+            {
+                return new BaseResult<UserDto>
+                {
+                    ErrorMessage = ErrorMessage.RoleNotFound,
+                    ErrorCode = (int)ErrorCodes.RoleNotFound
+                };
+            }
+
+            UserRole userRole = new UserRole()
+            {
+                UserId = user.Id,
+                RoleId = role.Id,
+            };
+
+            await _userRoleRepository.CreateAsync(userRole);
+
             return new BaseResult<UserDto>
             {
                 Data = _mapper.Map<UserDto>(user)

@@ -14,4 +14,9 @@ public enum ErrorCodes
 
     PaswordNotEqulsPasswordConfirm = 21,
     PasswordIsWrong = 22,
+
+    RoleAlreadyExists = 31,
+    RoleNotFound = 32,
+
+    UserAlreadyExistsThisRole = 41,
 }

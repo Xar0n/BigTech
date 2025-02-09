@@ -124,7 +124,7 @@
     <value>Invalid client request</value>
   </data>
   <data name="InvalidToken" xml:space="preserve">
-    <value>InvalidToken</value>
+    <value>Invalid Token</value>
   </data>
   <data name="PasswordIsWrong" xml:space="preserve">
     <value>Password Is Wrong</value>
@@ -141,8 +141,17 @@
   <data name="ReportsNotFound" xml:space="preserve">
     <value>Reports Not Found</value>
   </data>
+  <data name="RoleAlreadyExists" xml:space="preserve">
+    <value>Role Already Exists</value>
+  </data>
+  <data name="RoleNotFound" xml:space="preserve">
+    <value>Role Not Found</value>
+  </data>
   <data name="UserAlreadyExists" xml:space="preserve">
-    <value>UserAlreadyExists</value>
+    <value>User Already Exists</value>
+  </data>
+  <data name="UserAlreadyExistsThisRole" xml:space="preserve">
+    <value>User Already Exists This Role</value>
   </data>
   <data name="UserNotFound" xml:space="preserve">
     <value>User Not Found</value>

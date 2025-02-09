@@ -15,7 +15,7 @@ public class ReportConfiguration : IEntityTypeConfiguration<Report>
             .IsRequired(true)
             .HasMaxLength(2000);
 
-       /* builder.HasData(new List<Report>()
+        builder.HasData(new List<Report>()
         {
             new Report()
             {
@@ -25,6 +25,6 @@ public class ReportConfiguration : IEntityTypeConfiguration<Report>
                 UserId = 1,
                 CreatedAt = DateTime.UtcNow
             }
-        });*/
+        });
     }
 }

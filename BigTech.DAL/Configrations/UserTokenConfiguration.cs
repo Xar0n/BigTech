@@ -11,15 +11,15 @@ public class UserTokenConfiguration : IEntityTypeConfiguration<UserToken>
         builder.Property(ut => ut.RefreshToken).IsRequired(true);
         builder.Property(ut => ut.RefreshTokenExpiryTime).IsRequired(true);
 
-        /*builder.HasData(new List<UserToken>()
+        builder.HasData(new List<UserToken>()
         {
             new UserToken()
             {
                 Id = 1,
-                RefreshToken = "I03ig04ig094uig94ikfeg",
+                RefreshToken = "dasjJH$#HG$@YHDJWSHJD",
                 RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7),
                 UserId = 1
             }
-        });*/
+        });
     }
 }
