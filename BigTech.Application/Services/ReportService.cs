@@ -9,7 +9,6 @@ using BigTech.Domain.Interfaces.Validations;
 using BigTech.Domain.Result;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Threading;
 
 namespace BigTech.Application.Services;
 public class ReportService : IReportService

@@ -1,13 +1,17 @@
 using BigTech.Api;
+using BigTech.Api.Middlewares;
 using BigTech.Application.DependencyInjection;
 using BigTech.DAL.DependencyInjection;
+using BigTech.Domain.Settings;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.DefaultSection));
 
 builder.Services.AddControllers();
+builder.Services.AddAuthentificationAndAuthorization(builder);
 builder.Services.AddSwagger();
 
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
@@ -28,7 +32,16 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
+
+app.UseCors(c =>
+{
+    c.AllowAnyOrigin();
+    c.AllowAnyMethod();
+    c.AllowAnyHeader();
+});
 
 app.UseHttpsRedirection();
 app.MapControllers();
