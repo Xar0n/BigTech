@@ -1,11 +1,13 @@
-﻿namespace BigTech.Domain.Interfaces.Repositories;
-public interface IBaseRepository<TEntity>
+﻿using BigTech.Domain.Interfaces.Databases;
+
+namespace BigTech.Domain.Interfaces.Repositories;
+public interface IBaseRepository<TEntity> : IStateSaveChanges
 {
     IQueryable<TEntity> GetAll();
 
-    Task<TEntity> CreateAsync(TEntity entity);
+    Task CreateAsync(TEntity entity);
 
-    Task<TEntity> UpdateAsync(TEntity entity);
+    void Update(TEntity entity);
 
-    Task<TEntity> RemoveAsync(TEntity entity);
+    void Remove(TEntity entity);
 }

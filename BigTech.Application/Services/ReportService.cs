@@ -90,7 +90,8 @@ public class ReportService : IReportService
                 };
             }
             
-            await _reportRepository.RemoveAsync(report);
+            _reportRepository.Remove(report);
+            await _reportRepository.SaveChangesAsync();
             return new BaseResult<ReportDto>()
             {
                 Data = _mapper.Map<ReportDto>(report),
@@ -205,7 +206,8 @@ public class ReportService : IReportService
             report.Name = dto.Name;
             report.Description = dto.Description;
 
-            await _reportRepository.UpdateAsync(report);
+            _reportRepository.Update(report);
+            await _reportRepository.SaveChangesAsync();
             return new BaseResult<ReportDto>()
             {
                 Data = _mapper.Map<ReportDto>(report),

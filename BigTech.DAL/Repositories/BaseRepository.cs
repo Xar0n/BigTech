@@ -12,18 +12,14 @@ internal class BaseRepository<TEntity> :
         _context = context;
     }
 
-    public async Task<TEntity> CreateAsync(TEntity entity)
+    public async Task CreateAsync(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException("Entity is null");
 
         await _context.AddAsync(entity);
-        await _context.SaveChangesAsync();
-
-        return entity;
     }
-
-
+    
     public IQueryable<TEntity> GetAll()
     {
         return _context.Set<TEntity>();
@@ -34,24 +30,18 @@ internal class BaseRepository<TEntity> :
         return await _context.SaveChangesAsync();
     }
 
-    public async Task<TEntity> RemoveAsync(TEntity entity)
+    public void Remove(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException("Entity is null");
         _context.Remove(entity);
-        await _context.SaveChangesAsync();
-
-        return entity;
     }
 
-    public async Task<TEntity> UpdateAsync(TEntity entity)
+    public void Update(TEntity entity)
     {
         if (entity == null)
             throw new ArgumentNullException("Entity is null");
 
         _context.Update(entity);
-        await _context.SaveChangesAsync();
-
-        return entity;
     }
 }

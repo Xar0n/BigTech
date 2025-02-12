@@ -4,6 +4,7 @@ using BigTech.Domain.Dto;
 using BigTech.Domain.Dto.User;
 using BigTech.Domain.Entity;
 using BigTech.Domain.Enum;
+using BigTech.Domain.Interfaces.Databases;
 using BigTech.Domain.Interfaces.Repositories;
 using BigTech.Domain.Interfaces.Services;
 using BigTech.Domain.Result;
@@ -16,6 +17,7 @@ using System.Text;
 namespace BigTech.Application.Services;
 public class AuthService : IAuthService
 {
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IBaseRepository<User> _userRepository;
     private readonly IBaseRepository<UserToken> _userTokenRepository;
     private readonly IBaseRepository<Role> _roleRepository;
@@ -24,13 +26,16 @@ public class AuthService : IAuthService
     private readonly ILogger _logger;
     private readonly IMapper _mapper;
 
-    public AuthService(IBaseRepository<User> userRepository,
+    public AuthService(
+        IUnitOfWork unitOfWork,
+        IBaseRepository<User> userRepository,
         IBaseRepository<UserToken> userTokenRepository,
         IBaseRepository<Role> roleRepository,
         IBaseRepository<UserRole> userRoleRepository,
         ITokenService tokenService,
         ILogger logger, IMapper mapper)
     {
+        _unitOfWork = unitOfWork;
         _userRepository = userRepository;
         _userTokenRepository = userTokenRepository;
         _roleRepository = roleRepository;
@@ -42,73 +47,64 @@ public class AuthService : IAuthService
 
     public async Task<BaseResult<TokenDto>> Login(LoginUserDto dto)
     {
-        try
+
+        var user = await _userRepository.GetAll()
+            .Include(u => u.Roles)
+            .FirstOrDefaultAsync(u => u.Login == dto.Login);
+        if (user == null)
         {
-            var user = await _userRepository.GetAll()
-                .Include(u => u.Roles)
-                .FirstOrDefaultAsync(u => u.Login == dto.Login);
-            if (user == null)
-            {
-                return new BaseResult<TokenDto>
-                {
-                    ErrorMessage = ErrorMessage.UserNotFound,
-                    ErrorCode = (int)ErrorCodes.UserNotFound
-                };
-            }
-            if (!IsVerifyPassword(user.Password, dto.Password))
-            {
-                return new BaseResult<TokenDto>
-                {
-                    ErrorMessage = ErrorMessage.PasswordIsWrong,
-                    ErrorCode = (int)ErrorCodes.PasswordIsWrong
-                };
-            }
-            var userToken = await _userTokenRepository.GetAll()
-                .FirstOrDefaultAsync(ut => ut.UserId == user.Id);
-
-
-            var userRoles = user.Roles;
-            var claims = userRoles?.Select(ur => new Claim(ClaimTypes.Role, ur.Name)).ToList();
-            claims.Add(new Claim(ClaimTypes.Name, user.Login));
-            var acessToken = _tokenService.GenerateAcessToken(claims);
-            var refreshToken = _tokenService.GenerateRefreshToken();
-            
-            if (userToken == null)
-            {
-                userToken = new UserToken
-                {
-                    UserId = user.Id,
-                    RefreshToken = refreshToken,
-                    RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
-                };
-                await _userTokenRepository.CreateAsync(userToken);
-            }
-            else
-            {
-                userToken.RefreshToken = refreshToken;
-                userToken.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-
-                await _userTokenRepository.UpdateAsync(userToken);
-            }
-
             return new BaseResult<TokenDto>
             {
-                Data = new TokenDto()
-                {
-                    AcessToken = acessToken,
-                    RefreshToken = refreshToken
-                }
+                ErrorMessage = ErrorMessage.UserNotFound,
+                ErrorCode = (int)ErrorCodes.UserNotFound
             };
         }
-        catch (Exception ex)
+        if (!IsVerifyPassword(user.Password, dto.Password))
         {
-            _logger.Error(ex.Message);
-            return new BaseResult<TokenDto>()
+            return new BaseResult<TokenDto>
             {
-                ErrorMessage = ErrorMessage.InternalServerError,
-                ErrorCode = (int)ErrorCodes.InternalServerError
+                ErrorMessage = ErrorMessage.PasswordIsWrong,
+                ErrorCode = (int)ErrorCodes.PasswordIsWrong
             };
         }
+        var userToken = await _userTokenRepository.GetAll()
+            .FirstOrDefaultAsync(ut => ut.UserId == user.Id);
+
+
+        var userRoles = user.Roles;
+        var claims = userRoles?.Select(ur => new Claim(ClaimTypes.Role, ur.Name)).ToList();
+        claims.Add(new Claim(ClaimTypes.Name, user.Login));
+        var acessToken = _tokenService.GenerateAcessToken(claims);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+
+        if (userToken == null)
+        {
+            userToken = new UserToken
+            {
+                UserId = user.Id,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
+            };
+            await _userTokenRepository.CreateAsync(userToken);
+        }
+        else
+        {
+            userToken.RefreshToken = refreshToken;
+            userToken.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+            _userTokenRepository.Update(userToken);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return new BaseResult<TokenDto>
+        {
+            Data = new TokenDto()
+            {
+                AcessToken = acessToken,
+                RefreshToken = refreshToken
+            }
+        };
     }
 
     public async Task<BaseResult<UserDto>> Register(RegisterUserDto dto)
@@ -134,30 +130,45 @@ public class AuthService : IAuthService
                 };
             }
             var hashUserPassword = HashPassword(dto.Password);
-            user = new User()
-            {
-                Login = dto.Login,
-                Password = hashUserPassword,
-            };
-            await _userRepository.CreateAsync(user);
 
-            var role = await _roleRepository.GetAll().FirstOrDefaultAsync(r => r.Name == "User");
-            if (role == null)
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
-                return new BaseResult<UserDto>
+                try
                 {
-                    ErrorMessage = ErrorMessage.RoleNotFound,
-                    ErrorCode = (int)ErrorCodes.RoleNotFound
-                };
+                    user = new User()
+                    {
+                        Login = dto.Login,
+                        Password = hashUserPassword,
+                    };
+                    await _unitOfWork.Users.CreateAsync(user);
+                    await _unitOfWork.SaveChangesAsync();
+
+                    var role = await _unitOfWork.Roles.GetAll().FirstOrDefaultAsync(r => r.Name == nameof(Roles.User));
+                    if (role == null)
+                    {
+                        return new BaseResult<UserDto>
+                        {
+                            ErrorMessage = ErrorMessage.RoleNotFound,
+                            ErrorCode = (int)ErrorCodes.RoleNotFound
+                        };
+                    }
+
+                    UserRole userRole = new UserRole()
+                    {
+                        UserId = user.Id,
+                        RoleId = role.Id,
+                    };
+
+                    await _unitOfWork.UserRoles.CreateAsync(userRole);
+                    await _unitOfWork.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                }
             }
 
-            UserRole userRole = new UserRole()
-            {
-                UserId = user.Id,
-                RoleId = role.Id,
-            };
-
-            await _userRoleRepository.CreateAsync(userRole);
 
             return new BaseResult<UserDto>
             {
