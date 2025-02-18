@@ -23,7 +23,19 @@ public static class Startup
             o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(o =>
+        })
+
+        .AddJwtBearer(o =>
+        {
+            o.RequireHttpsMetadata = false;
+            o.Audience = builder.Configuration["Authentification:Audience"];
+            o.MetadataAddress = builder.Configuration["Authentification:MetadataAddress"];
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidIssuer = builder.Configuration["Authentification:ValidIssuer"]
+            };
+        });    
+        /*.AddJwtBearer(o =>
         {
             var options = builder.Configuration.GetSection(JwtSettings.DefaultSection).Get<JwtSettings>();
             var jwtKey = options.JwtKey;
@@ -41,14 +53,14 @@ public static class Startup
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true
             };
-        });
+        });*/
     }
 
     /// <summary>
     /// Подключение Swagger
     /// </summary>
     /// <param name="services"></param>
-    public static IServiceCollection AddSwagger(this IServiceCollection services)
+    public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddApiVersioning()
             .AddApiExplorer(o =>
@@ -82,7 +94,43 @@ public static class Startup
                     Name = "Email"
                 }
             });
-            o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+
+            o.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
+                { 
+                    Implicit = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri(configuration["Keycloak:AuthorizationUrl"]!),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "openid", "openid" },
+                            { "profile", "profile" }
+                        }
+                    }
+                }
+            });
+            o.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Id = "Keycloak",
+                            Type = ReferenceType.SecurityScheme
+                        },
+                        In = ParameterLocation.Header,
+                        Name = "Bearer",
+                        Scheme = "Bearer"
+                    },
+                    []
+                }
+            });
+
+
+            /*o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
                 In = ParameterLocation.Header,
                 Description = "Введите токен",
@@ -104,7 +152,7 @@ public static class Startup
                     },
                     Array.Empty<string>()
                 }
-            });
+            });*/
 
             var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFileName));

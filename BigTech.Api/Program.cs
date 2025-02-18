@@ -5,6 +5,7 @@ using BigTech.DAL.DependencyInjection;
 using BigTech.Domain.Settings;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Serilog;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSett
 
 builder.Services.AddControllers();
 builder.Services.AddAuthentificationAndAuthorization(builder);
-builder.Services.AddSwagger();
+builder.Services.AddSwagger(builder.Configuration);
 
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
@@ -43,6 +44,13 @@ app.UseCors(c =>
     c.AllowAnyHeader();
 });
 
+app.MapGet("users/me", (ClaimsPrincipal cp) =>
+{
+    return cp.Claims.ToDictionary(c => c.Type, c => c.Value);
+}).RequireAuthorization();
+
 app.UseHttpsRedirection();
 app.MapControllers();
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();
