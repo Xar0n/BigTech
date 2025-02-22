@@ -3,13 +3,15 @@ using BigTech.Api.Middlewares;
 using BigTech.Application.DependencyInjection;
 using BigTech.DAL.DependencyInjection;
 using BigTech.Domain.Settings;
-using Microsoft.AspNetCore.HttpsPolicy;
+using BigTech.Consumer.DependencyInjection;
+using BigTech.Producer.DependencyInjection;
 using Serilog;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.DefaultSection));
+builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection(RabbitMqSettings.DefaultSection));
 
 builder.Services.AddControllers();
 builder.Services.AddAuthentificationAndAuthorization(builder);
@@ -19,6 +21,9 @@ builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Confi
 
 builder.Services.AddDataAcessLayer(builder.Configuration);
 builder.Services.AddApplication();
+
+builder.Services.AddProducer();
+builder.Services.AddConsumer();
 
 var app = builder.Build();
 
@@ -50,7 +55,7 @@ app.MapGet("users/me", (ClaimsPrincipal cp) =>
 }).RequireAuthorization();
 
 app.UseHttpsRedirection();
-app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 app.Run();

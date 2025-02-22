@@ -7,7 +7,10 @@ using BigTech.Domain.Interfaces.Repositories;
 using BigTech.Domain.Interfaces.Services;
 using BigTech.Domain.Interfaces.Validations;
 using BigTech.Domain.Result;
+using BigTech.Domain.Settings;
+using BigTech.Producer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace BigTech.Application.Services;
@@ -18,18 +21,24 @@ public class ReportService : IReportService
     private readonly IReportValidator _reportValidator;
     private readonly IMapper _mapper;
     private readonly ILogger _logger;
+    private readonly IMessageProducer _producer;
+    private readonly IOptions<RabbitMqSettings> _rabbitMqOptions;
 
     public ReportService(IBaseRepository<Report> reportRepository,
         IBaseRepository<User> userRepository,
         IReportValidator reportValidator,
         IMapper mapper,
-        ILogger logger)
+        ILogger logger,
+        IMessageProducer producer,
+        IOptions<RabbitMqSettings> rabbitMqOptions)
     {
         _reportRepository = reportRepository;
         _userRepository = userRepository;
         _reportValidator = reportValidator;
         _mapper = mapper;
         _logger = logger;
+        _producer = producer;
+        _rabbitMqOptions = rabbitMqOptions;
     }
 
     /// <inheritdoc />
@@ -57,6 +66,9 @@ public class ReportService : IReportService
                 UserId = user.Id
             };
             await _reportRepository.CreateAsync(report);
+            await _reportRepository.SaveChangesAsync();
+            await _producer.SendMessage(report, _rabbitMqOptions.Value.RoutingKey, _rabbitMqOptions.Value.ExchangeName);
+
             return new BaseResult<ReportDto>()
             {
                 Data = _mapper.Map<ReportDto>(report),

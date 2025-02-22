@@ -19,7 +19,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BigTech.Application\BigTech.Application.csproj" />
+    <ProjectReference Include="..\BigTech.Consumer\BigTech.Consumer.csproj" />
     <ProjectReference Include="..\BigTech.DAL\BigTech.DAL.csproj" />
+    <ProjectReference Include="..\BigTech.Producer\BigTech.Producer.csproj" />
   </ItemGroup>
 
 </Project>

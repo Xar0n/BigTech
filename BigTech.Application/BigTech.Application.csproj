@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BigTech.Domain\BigTech.Domain.csproj" />
+    <ProjectReference Include="..\BigTech.Producer\BigTech.Producer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
