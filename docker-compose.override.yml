@@ -1,0 +1,49 @@
+services:
+  bigtech.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=bigtechdb;Port=5432;Database=Bigtech;User Id=postgres;Password=postgres;Include Error Detail=true
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__Port=5672
+    ports:
+      - "7070:8080"
+      - "7071:8081"
+    depends_on:
+      - bigtechdb
+      - rabbitmq
+      - distributedcache
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  bigtechdb:
+    container_name: bigtechdb
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=Bigtech
+    restart: always
+    volumes:
+      - /var/lib/postgresql/data/
+    ports:
+        - "5432:5432"
+
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    volumes:
+      - /var/lib/rabbitmq
+    ports:
+        - "1010:15672"
+        - "5670:5672" 
+
+  distributedcache:
+    container_name: distributedcache
+    restart: always
+    ports:
+      - "6379:6379"

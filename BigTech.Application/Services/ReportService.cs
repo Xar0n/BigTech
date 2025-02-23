@@ -3,6 +3,7 @@ using BigTech.Application.Resources;
 using BigTech.Domain.Dto.Report;
 using BigTech.Domain.Entity;
 using BigTech.Domain.Enum;
+using BigTech.Domain.Extensions;
 using BigTech.Domain.Interfaces.Repositories;
 using BigTech.Domain.Interfaces.Services;
 using BigTech.Domain.Interfaces.Validations;
@@ -10,6 +11,7 @@ using BigTech.Domain.Result;
 using BigTech.Domain.Settings;
 using BigTech.Producer.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Serilog;
 
@@ -23,6 +25,7 @@ public class ReportService : IReportService
     private readonly ILogger _logger;
     private readonly IMessageProducer _producer;
     private readonly IOptions<RabbitMqSettings> _rabbitMqOptions;
+    private readonly IDistributedCache _distributedCache;
 
     public ReportService(IBaseRepository<Report> reportRepository,
         IBaseRepository<User> userRepository,
@@ -30,7 +33,8 @@ public class ReportService : IReportService
         IMapper mapper,
         ILogger logger,
         IMessageProducer producer,
-        IOptions<RabbitMqSettings> rabbitMqOptions)
+        IOptions<RabbitMqSettings> rabbitMqOptions,
+        IDistributedCache distributedCache)
     {
         _reportRepository = reportRepository;
         _userRepository = userRepository;
@@ -39,6 +43,7 @@ public class ReportService : IReportService
         _logger = logger;
         _producer = producer;
         _rabbitMqOptions = rabbitMqOptions;
+        _distributedCache = distributedCache;
     }
 
     /// <inheritdoc />
@@ -152,6 +157,8 @@ public class ReportService : IReportService
                 ErrorCode = (int)ErrorCodes.ReportNotFound
             };
         }
+
+        _distributedCache.SetObject($"Report_{id}", report);
 
         return new BaseResult<ReportDto>()
         {

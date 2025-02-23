@@ -22,10 +22,10 @@ public class RabbitMqListener : BackgroundService
     {
         var factory = new ConnectionFactory()
         {
-            HostName = "localhost",
-            Port = 5670,
-            Password = "password",
-            UserName = "user",
+            HostName = _rabbitMqSettings.Value.HostName,
+            Port = _rabbitMqSettings.Value.Port,
+            Password = _rabbitMqSettings.Value.Password,
+            UserName = _rabbitMqSettings.Value.UserName
         };
 
         _connection = await factory.CreateConnectionAsync();

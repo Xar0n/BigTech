@@ -5,17 +5,28 @@ using BigTech.Application.Validations.FluentValidations.Report;
 using BigTech.Domain.Dto.Report;
 using BigTech.Domain.Interfaces.Services;
 using BigTech.Domain.Interfaces.Validations;
+using BigTech.Domain.Settings;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BigTech.Application.DependencyInjection;
 public static class DependencyInjection
 {
-    public static void AddApplication(this IServiceCollection services)
+    public static void AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAutoMapper(typeof(ReportMapping));
         services.AddAutoMapper(typeof(UserMapping));
         services.AddAutoMapper(typeof(RoleMapping));
+
+        var options = configuration.GetSection(nameof(RedisSettings));
+        var redisUrl = options["Url"];
+        var instanceName = options["InstanceName"];
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisUrl;
+            options.InstanceName = instanceName;
+        });
 
         InitServices(services);
     }

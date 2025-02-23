@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigTech.Producer", "BigTech
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigTech.Consumer", "BigTech.Consumer\BigTech.Consumer.csproj", "{10C54213-7BB6-41FD-BC0F-6DC3D44EA64A}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{623466D8-6CEA-4129-BD1F-C4A2C734C115}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{10C54213-7BB6-41FD-BC0F-6DC3D44EA64A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10C54213-7BB6-41FD-BC0F-6DC3D44EA64A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10C54213-7BB6-41FD-BC0F-6DC3D44EA64A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{623466D8-6CEA-4129-BD1F-C4A2C734C115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{623466D8-6CEA-4129-BD1F-C4A2C734C115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{623466D8-6CEA-4129-BD1F-C4A2C734C115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{623466D8-6CEA-4129-BD1F-C4A2C734C115}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

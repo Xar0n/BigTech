@@ -1,0 +1,15 @@
+services:
+  bigtech.api:
+    image: ${DOCKER_REGISTRY-}bigtechapi
+    build:
+      context: .
+      dockerfile: BigTech.Api/Dockerfile
+
+  bigtechdb:
+    image: postgres
+
+  rabbitmq:
+    image: rabbitmq:3-management
+
+  distributedcache:
+    image: redis

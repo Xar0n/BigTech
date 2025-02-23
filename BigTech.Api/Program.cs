@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.DefaultSection));
 builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection(RabbitMqSettings.DefaultSection));
+builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection(RedisSettings.DefaultSection));
 
 builder.Services.AddControllers();
 builder.Services.AddAuthentificationAndAuthorization(builder);
@@ -20,7 +21,7 @@ builder.Services.AddSwagger(builder.Configuration);
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddDataAcessLayer(builder.Configuration);
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 
 builder.Services.AddProducer();
 builder.Services.AddConsumer();
