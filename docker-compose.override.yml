@@ -4,9 +4,10 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=bigtechdb;Port=5432;Database=Bigtech;User Id=postgres;Password=postgres;Include Error Detail=true
+      - ConnectionStrings__PostgresSQL=Server=bigtechdb;Port=5432;Database=Bigtech;User Id=admin;Password=admin;Include Error Detail=true
       - RabbitMq__HostName=rabbitmq
       - RabbitMq__Port=5672
+      - Redis__Url=distributedcache
     ports:
       - "7070:8080"
       - "7071:8081"
@@ -47,3 +48,27 @@ services:
     restart: always
     ports:
       - "6379:6379"
+  
+  prometheus:
+    container_name: "prometheus"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - mynw
+    
+  grafana:
+    container_name: "grafana"
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - mynw

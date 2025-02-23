@@ -7,12 +7,16 @@ using BigTech.Consumer.DependencyInjection;
 using BigTech.Producer.DependencyInjection;
 using Serilog;
 using System.Security.Claims;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.DefaultSection));
 builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection(RabbitMqSettings.DefaultSection));
 builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection(RedisSettings.DefaultSection));
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.UseHttpClientMetrics();
 
 builder.Services.AddControllers();
 builder.Services.AddAuthentificationAndAuthorization(builder);
@@ -56,6 +60,17 @@ app.MapGet("users/me", (ClaimsPrincipal cp) =>
 }).RequireAuthorization();
 
 app.UseHttpsRedirection();
+
+app.UseMetricServer();
+app.UseHttpMetrics();
+
+app.MapGet("/random-number", () =>
+{
+    var number = Random.Shared.Next(0, 100);
+    return Results.Ok(number);
+});
+
+app.MapMetrics();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

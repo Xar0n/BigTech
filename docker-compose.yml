@@ -13,3 +13,12 @@ services:
 
   distributedcache:
     image: redis
+
+  prometheus:
+    image: prom/prometheus
+    
+  grafana:
+    image: grafana/grafana
+
+networks:
+  mynw:
