@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BigTech.Domain.Dto.Report;
-public record class UpdateReportDto
+﻿namespace BigTech.Domain.Dto.Report;
+public record UpdateReportDto(long Id, string Name, string Description)
 {
     public long Id { get; set; }
 

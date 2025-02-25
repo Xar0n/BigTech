@@ -1,5 +1,5 @@
 ﻿namespace BigTech.Domain.Dto.Report;
-public record class CreateReportDto
+public record CreateReportDto(string Name, string Description, long UserId)
 {
     public string Name { get; set; }
 
